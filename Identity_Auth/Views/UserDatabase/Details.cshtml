@@ -1,0 +1,453 @@
+﻿@model Identity_Auth.ViewModels.DashboardViewModel
+@{
+    Layout = "~/Views/Shared/_NewSidebarLayout.cshtml";
+}
+
+<style>
+    .chart-grid {
+        display: grid;
+        grid-template-columns:  1fr;
+        gap: 20px; 
+        max-width: 1500px; 
+        margin: auto; 
+    }
+
+    .critical-row {
+        order: -1; 
+    }
+
+    .normal-row {
+        order: 1; 
+    }
+
+    .chart-item {
+        background-color: #ffffff; 
+        padding: 15px; 
+        border: none; 
+        border-radius: 5px; 
+    }
+
+    .chart-container {
+        margin-top: 20px; 
+        background-color: #ffffff;
+        width: 100%; 
+        max-width: 100%; 
+    }
+
+        .chart-container canvas {
+            width: 100% !important; 
+            height: auto !important; 
+            background-color: transparent !important; 
+        }
+
+    .dashboard-title {
+        text-align: center;
+        font-size: 2em;
+        font-weight: bold; 
+        margin-bottom: 20px;
+        color: #808183; 
+    }
+
+    .btn-danger.delete-button {
+        background-color: #dc3545; 
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 3px;
+        display: inline-block; 
+        position: absolute; 
+        top: 10px;
+        right: 10px;
+    }
+
+    .table-container {
+        display: none;
+        overflow-x: auto;
+        max-width: 100%;
+        background-color: #ffffff; 
+    }
+
+        .table-container table {
+            min-width: 600px; 
+            background-color: #ffffff; 
+        }
+
+    .table {
+        border: none;
+        font-size: 0.9em; 
+        background-color: #ffffff; 
+    }
+
+    .section-divider {
+        border-top: 4px solid #007bff; 
+        margin: 20px 0;
+    }
+
+    .btn-download-pdf {
+        background-color: #007bff;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .Infosection p {
+        font-family: 'Courier New', Courier, monospace; 
+    }
+
+    .Infosection strong {
+        color: #799ed3; 
+        font-weight: bold
+    }
+
+    .filter-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+        .filter-container label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .filter-container input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+            .filter-container input[type="checkbox"] + span {
+                font-size: 1em;
+            }
+
+    #column-select {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        background-color: #f9f9f9;
+        outline: none;
+        box-shadow: 0 0 0 1px #ccc inset;
+    }
+
+        #column-select:hover {
+            border-color: #799ed3;
+        }
+
+        #column-select:focus {
+            border-color: #799ed3;
+            box-shadow: 0 0 5px rgba(121, 158, 211, 0.5);
+        }
+
+    .label {
+        color: #799ed3;
+        font-size: 16px;
+        margin-right: 10px;
+        font-weight:bold;
+    }
+</style>
+<span class="label">Order :</span>
+<select id="column-select">
+    <option value="1">1 Column</option>
+    <option value="2">2 Columns</option>
+    <option value="3">3 Columns</option>
+    <option value="4">4 Columns</option>
+</select>
+
+<!-- Filter Section -->
+<div class="filter-container">
+    <label for="filter-critical" style="color:#799ed3;">Filter:</label>
+    <input type="checkbox" id="filter-critical" checked> <span>Critical</span>
+    <input type="checkbox" id="filter-normal" checked> <span>Normal</span>
+</div>
+
+<button class="btn-download-pdf" onclick="downloadPDF()">Download as PDF</button>
+<h2 class="dashboard-title">@Model.Dashboard.Name</h2>
+
+<div class="chart-grid">
+    @foreach (var graphicData in Model.GraphicsData)
+    {
+        <div class="chart-item graphic-row @(graphicData.Priority == "Critical" ? "critical-row" : "normal-row")">
+            <form asp-action="DeleteGraphic" method="post" style="display:inline;">
+                <input type="hidden" name="id" value="@graphicData.Id" />
+                <button type="submit" class="delete-button" style="display:inline-block;margin-right:20px;border:none;background-color:white;color:#dc3545;font-size:20px;"><i class="fa-solid fa-trash-can"></i></button>
+            </form>
+
+            <button class="DisplayInfo" data-id="@graphicData.Id" style="color:#799ed3;border:none;background-color:white;font-size:20px;">Details</button>
+
+            <!-- Display the SQL query used to generate the result -->
+            <div class="Infosection" data-id="@graphicData.Id" style="display:none;background-color:white;border:none;">
+                <strong>Query:</strong>
+                <p>@graphicData.Query</p>
+                <strong>Connection :</strong>
+                <p>@graphicData.Alias</p>
+                <strong>Row :</strong>
+                <p>@graphicData.Row</p>
+                <strong>@(graphicData.YAxis == null ? "" : "YAxis : ")</strong>
+                <p>@(graphicData.YAxis == null ? "none" : graphicData.YAxis)</p>
+                <strong>Chart Priority :</strong>
+                <p style="color:red">@graphicData.Priority</p>
+            </div>
+
+            <!-- Container for the table -->
+            <div class="table-container">
+                <table id="table-@graphicData.Id" class="table table-bordered">
+                    
+                </table>
+            </div>
+
+            <!-- Container for the chart -->
+            <div class="chart-container">
+                <canvas id="chart-@graphicData.Id" style="background-color:white"></canvas>
+            </div>
+
+            <!-- Section divider -->
+            <div class="section-divider"></div>
+        </div>
+    }
+</div>
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        const colorPalette = [
+            '#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
+            '#955251', '#B565A7', '#009B77', '#DD4124', '#45B8AC',
+            '#EFC050', '#5B5EA6', '#9B2335', '#DFCFBE', '#55B4B0',
+            '#E15D44', '#7FCDCD', '#BC243C', '#C3447A', '#98B4D4',
+            '#BFD641', '#6A2E2A', '#F4A582', '#9C2A00', '#6A6A6A',
+            '#D94F70', '#FF9C00', '#A77DC2', '#D4A76A', '#3B3A30',
+            '#FFA07A', '#2E8B57', '#00CED1', '#FFD700', '#8B008B'
+        ];
+
+        function getRandomColorFromPalette(usedColors) {
+            let color;
+            do {
+                color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+            } while (usedColors.includes(color));
+            usedColors.push(color);
+            return color;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const graphicsData = @Html.Raw(ViewBag.GraphicsDataJson);
+
+            graphicsData.forEach(data => {
+                const table = document.getElementById(`table-${data.Id}`);
+                const canvas = document.getElementById(`chart-${data.Id}`);
+
+                try {
+                    populateTable(table, data);
+                    createChart(canvas, data);
+                } catch (error) {
+                    console.error("Error creating table or chart:", error);
+                }
+
+                table.parentElement.classList.add('scrollable-table');
+            });
+
+            setInterval(() => {
+                const scrollPosition = window.scrollY;
+                window.location.reload();
+                window.scrollTo(0, scrollPosition);
+            }, 120000);
+
+            // Filtering logic
+            function filterGraphics() {
+                const showCritical = document.getElementById('filter-critical').checked;
+                const showNormal = document.getElementById('filter-normal').checked;
+
+                document.querySelectorAll('.graphic-row').forEach(row => {
+                    const isCritical = row.classList.contains('critical-row');
+                    row.style.display = (showCritical && isCritical) || (showNormal && !isCritical) ? '' : 'none';
+                });
+            }
+
+            // Event listeners for filter checkboxes
+            document.getElementById('filter-critical').addEventListener('change', filterGraphics);
+            document.getElementById('filter-normal').addEventListener('change', filterGraphics);
+
+            // Initial filter application
+            filterGraphics();
+        });
+
+        function populateTable(table, data) {
+            const tableHead = table.createTHead();
+            const tableRow = tableHead.insertRow();
+            const headers = data.Labels;
+
+            let tableHeaders = [];
+            let tableData = [];
+
+            if (data.YAxis && data.YAxis !== 'null') {
+                tableHeaders = [data.Row, data.YAxis];
+                tableData = data.Data.map(row => tableHeaders.map(header => row[headers.indexOf(header)]));
+            } else {
+                tableHeaders = headers.filter(header => header !== data.Row);
+                tableHeaders.push(data.Row); 
+                tableData = data.Data.map(row => tableHeaders.map(header => row[headers.indexOf(header)]));
+            }
+
+            tableHeaders.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                tableRow.appendChild(th);
+            });
+
+            const tableBody = table.createTBody();
+            tableData.forEach(row => {
+                const tr = tableBody.insertRow();
+                row.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+            });
+        }
+
+        function createChart(canvas, data) {
+            const xAxisLabel = data.Row;
+            const yAxisLabel = data.YAxis;
+
+            const xLabels = data.Data.map(row => row[data.Labels.indexOf(xAxisLabel)]);
+            const yLabels = yAxisLabel && yAxisLabel !== 'Multiple'
+                ? [yAxisLabel]
+                : data.Labels.filter(header => header !== xAxisLabel);
+
+            let usedColors = [];
+            const datasets = yLabels.map((label, index) => ({
+                label: label,
+                data: data.Data.map(row => row[data.Labels.indexOf(label)]),
+
+                backgroundColor: data.Type === 'pie' || data.Type === 'polarArea'
+                    ? Array.from({ length: data.Data.length }, () => getRandomColorFromPalette(usedColors))
+                    : getRandomColorFromPalette(usedColors),
+
+                borderWidth: 1,
+                fill: data.Type !== 'line' && data.Type !== 'bar'
+            }));
+
+            new Chart(canvas, {
+                type: data.Type,
+                data: {
+                    labels: xLabels,
+                    datasets: datasets,
+                },
+                options: {
+                    responsive: true,
+                    scales: data.Type !== 'pie' && data.Type !== 'polarArea' ? {
+                        x: {
+                            title: {
+                                display: true,
+                                text: xAxisLabel,
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: yAxisLabel || 'Value',
+                            }
+                        }
+                    } : {},
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            let promises = [];
+            let yOffset = 10;
+
+            
+            document.querySelectorAll('.graphic-row').forEach(row => {
+                if (row.style.display !== 'none') {
+                    const canvas = row.querySelector('canvas');
+
+                    if (canvas) {
+                        promises.push(html2canvas(canvas).then(canvasImage => {
+                            const imgData = canvasImage.toDataURL('image/png');
+                            const imgProps = pdf.getImageProperties(imgData);
+                            const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
+                            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                            if (yOffset + pdfHeight > pdf.internal.pageSize.getHeight() - 10) {
+                                pdf.addPage();
+                                yOffset = 10;
+                            }
+
+                            pdf.addImage(imgData, 'PNG', 10, yOffset, pdfWidth, pdfHeight);
+                            yOffset += pdfHeight + 10;
+                        }));
+                    }
+                }
+            });
+
+            Promise.all(promises).then(() => {
+                pdf.save('dashboard.pdf');
+            });
+        }
+
+        $(document).ready(function () {
+            $('.DisplayInfo').click(function () {
+                var id = $(this).data('id');
+                $('.Infosection[data-id="' + id + '"]').slideToggle();
+            });
+        });
+        document.getElementById('column-select').addEventListener('change', function () {
+            const numColumns = this.value;
+            const grid = document.querySelector('.chart-grid');
+            grid.style.gridTemplateColumns = `repeat(${numColumns}, 1fr)`;
+            
+            
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            
+            const filterCriticalCheckbox = document.getElementById('filter-critical');
+            const filterNormalCheckbox = document.getElementById('filter-normal');
+            const columnSelect = document.getElementById('column-select');
+
+            
+            if (localStorage.getItem('filterCritical')) {
+                filterCriticalCheckbox.checked = JSON.parse(localStorage.getItem('filterCritical'));
+            }
+            if (localStorage.getItem('filterNormal')) {
+                filterNormalCheckbox.checked = JSON.parse(localStorage.getItem('filterNormal'));
+            }
+            if (localStorage.getItem('columnSelect')) {
+                columnSelect.value = localStorage.getItem('columnSelect');
+                const numColumns = columnSelect.value;
+                const grid = document.querySelector('.chart-grid');
+                grid.style.gridTemplateColumns = `repeat(${numColumns}, 1fr)`;
+            }
+
+            
+            filterCriticalCheckbox.addEventListener('change', function () {
+                localStorage.setItem('filterCritical', filterCriticalCheckbox.checked);
+                filterGraphics(); 
+            });
+
+            filterNormalCheckbox.addEventListener('change', function () {
+                localStorage.setItem('filterNormal', filterNormalCheckbox.checked);
+                filterGraphics(); 
+            });
+
+            columnSelect.addEventListener('change', function () {
+                localStorage.setItem('columnSelect', columnSelect.value);
+                const numColumns = columnSelect.value;
+                const grid = document.querySelector('.chart-grid');
+                grid.style.gridTemplateColumns = `repeat(${numColumns}, 1fr)`;
+            });
+        });
+
+                
+    </script>
+}

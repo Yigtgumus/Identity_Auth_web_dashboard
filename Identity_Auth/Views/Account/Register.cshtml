@@ -1,0 +1,96 @@
+﻿@using Identity_Auth.ViewModels
+@model RegisterVM
+@{
+    ViewData["Title"] = "Register";
+}
+<style>
+    body {
+        background-image: url('/images/business.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        height: 100vh;
+        margin: 0;
+        color: #fff;
+    }
+
+    .form-container {
+        max-width: 700px;
+        padding: 40px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        border: none;
+        margin: auto;
+        background: rgba(0, 0, 0, 0.3); 
+        backdrop-filter: blur(7.5px); 
+        border-radius: 15px; 
+        color: #fff; 
+        margin-right: 35%;
+        margin-bottom: 0.5%;
+    }
+
+        .form-container h2 {
+            font-size: 2.5rem;
+        }
+
+    .form-control {
+        font-size: 1rem;
+        background-color: rgba(255, 255, 255, 0.8); 
+    }
+
+    .form-control-label {
+        font-size: 1.25rem;
+    }
+
+    .btn-lg {
+        font-size: 1.25rem;
+        padding: 0.75rem 1.5rem;
+    }
+</style>
+
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-md-6 card p-4 form-container">
+        <h2 class="text-center text-info">Register</h2>
+        <form asp-action="Register" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Name" class="form-control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-control-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Address" class="form-control-label"></label>
+                <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-8">
+                    <a asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" class="text-decoration-none float-start mt-2">Have an account?</a>
+                </div>
+                <div class="col-4">
+                    <input type="submit" value="Register" class="btn btn-primary btn-lg float-end" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,366 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S!mple</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <style>
+        /
+        .c-pointer {
+            cursor: pointer;
+        }
+
+        .no-scroll {
+            overflow: hidden;
+            background-color: #2f3e4e;
+        }
+
+        .fz-2 {
+            font-size: 2em;
+        }
+
+        .fz-4 {
+            font-size: 4em;
+        }
+
+        .fz-5 {
+            font-size: 5em;
+        }
+
+        .h-100 {
+            height: 100vh !important;
+        }
+
+        .lobster {
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        .raleway {
+            font-family: 'Raleway', sans-serif;
+        }
+
+        .ls-5 {
+            letter-spacing: 5px;
+        }
+
+        .ls-4 {
+            letter-spacing: 4px;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        #slide-toggle {
+            z-index: 99999;
+            position: relative;
+            color: #fff;
+            border: 2px solid #666;
+            padding: 5px 10px;
+            top: 20px;
+        }
+
+        #menu-slider.hide {
+            left: -100%;
+        }
+
+        #menu-slider {
+            height: 100%;
+            background-color: #2f3e4e;
+            overflow-y: auto;
+            overflow-y: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transition: all 0.4s;
+            z-index: 9999;
+        }
+
+            #menu-slider ul {
+                margin: 0;
+                padding: 0;
+                margin-top: 80px;
+            }
+
+                #menu-slider ul li {
+                    list-style-type: none;
+                }
+
+                    #menu-slider ul li a {
+                        display: inline-block;
+                        width: 100%;
+                        padding: 10px;
+                        color: #fff;
+                        font-size: 1.5em;
+                        text-transform: uppercase;
+                    }
+
+                        #menu-slider ul li a:hover {
+                            color: #d74703;
+                        }
+
+        .overlay {
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            right: 0;
+            display: none;
+            z-index: 99;
+        }
+
+        #main-warapper.left {
+            left: 20%;
+            background-color: #2f3e4e;
+        }
+
+        #main-warapper {
+            position: absolute;
+            left: 0;
+            transition: all 0.4s;
+            width: 100%;
+            top: 0;
+        }
+
+        #image-header {
+            background-image: url('https://mir-s3-cdn-cf.behance.net/project_modules/disp/c4cd2469553149.5b85760ee5e4b.gif');
+            background-position: center;
+            background-size: cover;
+            position: absolute;
+            top: 0;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+        }
+
+            #image-header .layer {
+                background-color: rgba(0, 0, 0, 0.4);
+                position: absolute;
+                top: 0;
+                height: 100%;
+                width: 100%;
+            }
+
+        #logo {
+            font-size: 6em;
+        }
+
+        #contact-us {
+            background-image: url('http://kapishsolutions.com/wp-content/uploads/2013/10/contact-us-banner.jpg');
+            -webkit-background-size: cover;
+            background-size: cover;
+            background-position: center;
+            height: 230px;
+            position: relative;
+        }
+
+            #contact-us .layer {
+                background-color: rgba(0, 0, 0, 0.6);
+                position: absolute;
+                top: 0;
+                height: 100%;
+                width: 100%;
+            }
+
+            #contact-us p,
+            #contact-us h2,
+            #contact-us button {
+                z-index: 1;
+            }
+
+        footer {
+            background-color: #272727;
+        }
+
+            footer #copyright {
+                background-color: #343434;
+            }
+
+            footer i {
+                font-size: 22px;
+            }
+    </style>
+</head>
+
+<body>
+
+
+    <div id="main-warapper">
+        <div class="container-fluid bg-light">
+            <div class="row">
+                <div class="container-fluid">
+                    <div class="row justify-content-center align-items-center h-100">
+                        <div class="col-md-12" id="image-header">
+                            <div class="layer"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="text-center">
+                                <img class="logo" data-aos="fade-up" data-aos-duration="600" src="https://freepngimg.com/download/letter/130281-d-letter-free-clipart-hq.png" width="300" height="300" />
+                                <h1 data-aos="zoom-in" data-aos-duration="600" class="text-white text-uppercase lobster" id="logo">Datflow</h1>
+
+                                <h3 data-aos="fade-up" data-aos-duration="900" class="text-white text-uppercase mb-4 ls-5">Welcome !</h3>
+                                <h6 data-aos="fade-up"data-aos-duration="900"style="color:white;font-size:25px;">Web Dashboard application that provides visualization, simultaniously connecting databases, and much more..</h6>
+
+                                <button data-aos="fade-up" data-aos-duration="1000" class="btn btn-danger text-uppercase" onclick="window.location.href='@Url.Action("Register", "Account")'">Register</button>
+                                <button data-aos="fade-up" data-aos-duration="1000" class="btn btn-outline-light text-uppercase" onclick="window.location.href='@Url.Action("Login", "Account")'">Login</button>
+                                
+                                <h6 data-aos="fade-up" data-aos-duration="900" style="color:white;font-size:25px;margin-top:190px;">Learn More <i class="fas fa-angle-down " style="display:block;color:white"></i></h6>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="container text-secondary raleway">
+                    <div class="row pt-5 mt-5" data-aos="fade-down" data-aos-duration="1000">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <i class="fas fa-database fa-5x" style="display:block;color:#4F657C"></i>
+                                </div>
+                                <div class="col-md-10">
+                                    <h5 class="text-primary">Work on multiple Connections</h5>
+                                    <p>In the Database section, you can define multiple database connections by entering the necessary details (Servername, DBname). This allows you to manage various connections simultaneously.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <i class="fas fa-bar-chart fa-5x" style="display:block;color:#4F657C"></i>
+                                </div>
+                                <div class="col-md-10">
+                                    <h5 class="text-primary">Determine statistics and knowledge and visualize your Querries</h5>
+                                    <p>
+                                        In the Reports section, you can display the list of the reports you created or create a new one. In the Creation you can navigate through tables via executing SQL querries, Create and optimize charts, See the duplicated value statistics and save it to the Reports List. Also you can save the optimized chart to your dashboard for quick access.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <i class="fas fa-layer-group fa-5x" style="display:block;color:#4F657C"></i>
+                                </div>
+                                <div class="col-md-10">
+                                    <h5 class="text-primary">Quick access to your visualizations</h5>
+                                    <p> In the Dashboard section, you can access the live charts that you saved in the reports section. Here, you can also delete charts for your optimization.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row pt-5 pb-5 mb-5" data-aos="fade-up" data-aos-duration="1000">
+                        <div class="col-md-4">
+                            <div class="row">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <i class="fas fa-circle-info fa-5x" style="display:block;color:#4F657C"></i>
+                                </div>
+                                <div class="col-md-10">
+                                    <h5 class="text-primary">Whenever you have a confusion</h5>
+                                    <p>In the help section you can always find the necessary information to regulate , visualize and access your data.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid" data-aos="fade-up" data-aos-duration="600">
+            <div class="row row-eq-height align-items-center">
+                <div class="col-md-6 p-5 raleway">
+                    <h1 class="text-uppercase">Visualize Your Data Using Chart.Js </h1>
+                    <img class="img-fluid" src="https://miro.medium.com/v2/resize:fit:1400/1*EVoT-miKeeuIgPHX0To8DQ.gif" />
+
+
+                </div>
+                <div class="col-md-6 text-secondary p-5 raleway">
+                    <p>
+                        <span class="text-primary">Fully Eqquipped tool that makes charts most dynamic way its possible.</span>
+                        <span>Using different colors, types and even you can adjust your optimization for your usage.</span>
+                    </p>
+
+                    <p>Chart.js is a powerfull chart data visualization Java script Library that allows you to display your data by many different type of charts. Also you can minimze or adjust your columns,rows for your optimization. Engage your analytics to the next level and Create Dynamic Dashboards.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid bg-light" data-aos="fade-up" data-aos-duration="600">
+            <div class="row row-eq-height align-items-center">
+
+                <div class="col-md-6 text-secondary p-5 raleway">
+                    <p>
+                        <span class="text-primary">Connect multiple databases..</span>
+                        <span>Make multiple connection definitions. rename them for your use, add new connections, delete it whenever you want</span>
+                    </p>
+
+                    <p>You can define the connections fo your SQL servers. Not only define you can run Querries on your connections. Everything you  can process via Smss you can do it here.</p>
+                </div>
+                <div class="col-md-6 p-5 raleway">
+                    <h1 class="text-uppercase">Connect multiple databases</h1>
+                    <img class="img-fluid" src="https://cdn.pixabay.com/photo/2022/05/23/17/28/big-data-7216774_1280.png" />
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid" id="contact-us">
+            <div class="row justify-content-center align-items-center flex-column">
+                <h2 data-aos="zoom-in" data-aos-duration="600" class="pt-5 text-white raleway">Wanna Talk To Us?</h2>
+                <p data-aos="zoom-in" data-aos-duration="1000" class="text-white">Please feel free to contact us. We’re super happy to talk to you. Feel free to ask anything.</p>
+
+                <button data-aos="zoom-in" data-aos-duration="1400" class="btn btn-danger text-uppercase">Contact us</button>
+                <div class="layer"></div>
+            </div>
+        </div>
+
+        <footer>
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            AOS.init();
+
+            $('#slide-toggle').click(function () {
+                $('.overlay').fadeToggle(50);
+
+                $('#menu-slider').toggleClass('hide');
+                $('#main-warapper').toggleClass('left');
+
+                $('body').toggleClass('no-scroll');
+            });
+
+            $('.overlay').click(function () {
+                $(this).fadeToggle(50);
+
+                $('#menu-slider').toggleClass('hide');
+                $('#main-warapper').toggleClass('left');
+
+                $('body').toggleClass('no-scroll');
+            });
+        });
+    </script>
+</body>
+
+</html>

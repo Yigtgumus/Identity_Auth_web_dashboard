@@ -1,0 +1,73 @@
+﻿.percentage-circle {
+    position: relative;
+    width: 200px; /* Daire çapı */
+    height: 200px; /* Daire çapı */
+    border-radius: 50%;
+    background-color: #f3f3f3;
+    overflow: hidden;
+    display: inline-block;
+}
+
+    .percentage-circle .mask,
+    .percentage-circle .fill {
+        width: 200px; /* Daire çapı */
+        height: 200px; /* Daire çapı */
+        position: absolute;
+        border-radius: 50%;
+    }
+
+    .percentage-circle .mask {
+        clip: rect(0px, 200px, 200px, 100px);
+    }
+
+    .percentage-circle .fill {
+        clip: rect(0px, 100px, 200px, 0px);
+        background-color: var(--color, #3498db); /* Renk değişkeni */
+        transform: rotate(0deg);
+        transform-origin: center;
+        transition: transform 1s ease-in-out;
+    }
+
+@keyframes fillAnimation {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(var(--percentage) * 3.6deg);
+    }
+}
+
+.percentage-circle .mask.full {
+    transform: rotate(180deg);
+}
+
+    .percentage-circle .mask.full .fill {
+        background-color: var(--color, #3498db); /* Renk değişkeni */
+        animation: fillAnimation 1s ease-in-out forwards;
+    }
+
+.percentage-circle .mask.half {
+    clip: rect(0px, 100px, 200px, 0px);
+    background-color: inherit;
+}
+
+    .percentage-circle .mask.half .fill {
+        background-color: var(--color, #3498db); /* Renk değişkeni */
+        animation: fillAnimation 1s ease-in-out forwards;
+    }
+
+.percentage-circle .inside-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160px; /* İç daire çapı */
+    height: 160px; /* İç daire çapı */
+    background: #ffffff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px; /* İç metin boyutu */
+}

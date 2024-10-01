@@ -1,0 +1,301 @@
+﻿@model CreateReportViewModel
+
+@{
+    Layout = "~/Views/Shared/_NewSidebarLayout.cshtml";
+    var queryResultJson = System.Text.Json.JsonSerializer.Serialize(ViewData["QueryResult"]);
+}
+<style>
+    .table-container {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 20px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table thead th {
+            background-color: #f2f2f2;
+        }
+
+    .chart-container {
+        width: 100%;
+        max-width: 600px;
+        max-height: 600px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        color: #808183;
+        font-weight: bold;
+        margin-bottom: 40px;
+    }
+
+    .form-group {
+        margin-bottom: 30px;
+    }
+
+    button {
+        margin-top: 10px;
+    }
+</style>
+
+<h1>Create New Report</h1>
+<form asp-action="CreateReport" method="post" id="reportForm">
+    <div class="form-group">
+        <label for="ReportName">Report Name</label>
+        <input asp-for="ReportName" class="form-control" id="ReportName" />
+    </div>
+    <div class="form-group">
+        <label for="SelectedConnectionId">Db Connection</label>
+        <select asp-for="SelectedConnectionId" class="form-control" asp-items="@(new SelectList(Model.Connections, "Id", "Alias"))"></select>
+    </div>
+    <div class="form-group">
+        <label for="Query">SQL Query</label>
+        <textarea asp-for="Query" class="form-control" id="Query"></textarea>
+    </div>
+    <div id="error-message" class="text-danger" style="display:none;"></div>
+    <button type="submit" class="btn btn-primary">ExecuteQuery</button>
+    <button type="button" id="saveReportBtn" class="btn btn-secondary">Save Report</button>
+</form>
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
+
+@if (ViewData["QueryResult"] != null)
+{
+    <div class="form-group">
+        <label for="ChartType">View Type :</label>
+        <select id="ChartType" class="form-control">
+            <option value="pie">Pie</option>
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+            <option value="doughnut">Doughnut</option>
+            <option value="polarArea">Polar Area</option>
+            <option value="radar">Radar</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="RowColumn">Rows :</label>
+        <select id="RowColumn" class="form-control">
+            @foreach (var column in ((List<Dictionary<string, object>>)ViewData["QueryResult"])[0].Keys)
+            {
+                <option value="@column">@column</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="enableYAxisSelection" name="axisSelection" /> Enable Y Axis Selection
+        </label>
+    </div>
+
+    <div class="form-group" id="yAxisSelectionContainer" style="display:none;">
+        <label for="YAxisColumn">Y axis :</label>
+        <select id="YAxisColumn" class="form-control"></select>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    @foreach (var column in ((List<Dictionary<string, object>>)ViewData["QueryResult"])[0].Keys)
+                    {
+                        <th>@column</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in (List<Dictionary<string, object>>)ViewData["QueryResult"])
+                {
+                    <tr>
+                        @foreach (var cell in row.Values)
+                        {
+                            <td>@cell</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.getElementById('saveReportBtn').addEventListener('click', function (event) {
+        event.preventDefault();
+
+        var reportName = document.getElementById('ReportName').value.trim();
+        var query = document.getElementById('Query').value.trim();
+        var selectedConnectionId = document.getElementById('SelectedConnectionId').value;
+        var errorMessage = document.getElementById('error-message');
+
+        var messages = [];
+        if (reportName === "") {
+            messages.push("REPORT NAME SECTION CANNOT BE EMPTY");
+        }
+        if (query === "") {
+            messages.push("QUERY SECTION CANNOT BE EMPTY");
+        }
+
+        if (messages.length > 0) {
+            errorMessage.innerHTML = messages.join("<br>");
+            errorMessage.style.display = 'block';
+        } else {
+            errorMessage.style.display = 'none';
+
+            var data = {
+                ReportName: reportName,
+                SelectedConnectionId: selectedConnectionId,
+                Query: query
+            };
+
+            fetch('@Url.Action("SaveReport", "UserDatabase")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const queryResult = @Html.Raw(queryResultJson);
+        const chartTypeSelect = document.getElementById('ChartType');
+        const rowColumnSelect = document.getElementById('RowColumn');
+        const enableYAxisSelectionCheckbox = document.getElementById('enableYAxisSelection');
+        const yAxisSelectionContainer = document.getElementById('yAxisSelectionContainer');
+        const yAxisColumnSelect = document.getElementById('YAxisColumn');
+        const ctx = document.getElementById('myChart').getContext('2d');
+        let myChart = null;
+
+        function generateRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function renderChart() {
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            const chartType = chartTypeSelect.value;
+            const rowColumn = rowColumnSelect.value;
+            const enableYAxisSelection = enableYAxisSelectionCheckbox.checked;
+            const yAxisColumn = yAxisColumnSelect.value;
+
+            const labels = [];
+            const datasets = [];
+            const yAxesData = {};
+
+            queryResult.forEach(row => {
+                const xValue = row[rowColumn];
+                labels.push(xValue);  // Benzersiz yerine tüm xValue değerlerini ekle
+                Object.keys(row).forEach(key => {
+                    if (key !== rowColumn) {
+                        if (!yAxesData[key]) {
+                            yAxesData[key] = [];
+                        }
+                        yAxesData[key].push(row[key]);
+                    }
+                });
+            });
+
+            for (const [key, values] of Object.entries(yAxesData)) {
+                if (!enableYAxisSelection || key === yAxisColumn) {
+                    const datasetColors = chartType === 'bar' ? undefined : labels.map(() => generateRandomColor());
+                    datasets.push({
+                        label: key,
+                        data: values,  // values dizisini doğrudan kullan
+                        backgroundColor: datasetColors,
+                        borderColor: (chartType === 'line') ? generateRandomColor() : undefined,
+                        borderWidth: (chartType === 'line') ? 1 : undefined
+                    });
+                }
+            }
+
+            myChart = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    scales: chartType === 'line' ? {
+                        y: {
+                            beginAtZero: true
+                        }
+                    } : undefined,
+                    responsive: true
+                }
+            });
+        }
+
+
+        function updateYAxisOptions() {
+            yAxisColumnSelect.innerHTML = '';
+
+            const selectedRowColumn = rowColumnSelect.value;
+            const columns = Object.keys(queryResult[0]);
+
+            columns.forEach(column => {
+                if (column !== selectedRowColumn) {
+                    const option = document.createElement('option');
+                    option.value = column;
+                    option.textContent = column;
+                    yAxisColumnSelect.appendChild(option);
+                }
+            });
+        }
+
+        renderChart();
+
+        chartTypeSelect.addEventListener('change', renderChart);
+        rowColumnSelect.addEventListener('change', function () {
+            if (enableYAxisSelectionCheckbox.checked) {
+                updateYAxisOptions();
+            }
+            renderChart();
+        });
+        
+        enableYAxisSelectionCheckbox.addEventListener('change', function () {
+            yAxisSelectionContainer.style.display = enableYAxisSelectionCheckbox.checked ? 'block' : 'none';
+            if (enableYAxisSelectionCheckbox.checked) {
+                updateYAxisOptions();
+            }
+            renderChart();
+        });
+
+        yAxisColumnSelect.addEventListener('change', renderChart);
+    });
+</script>

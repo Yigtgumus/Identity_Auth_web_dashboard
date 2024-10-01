@@ -1,0 +1,123 @@
+﻿@model IEnumerable<Identity_Auth.ViewModels.ReportListViewModel>
+
+@{
+    Layout = "~/Views/Shared/_NewSidebarLayout.cshtml";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    h1 {
+        color: #808183;
+        font-weight: bold;
+    }
+
+    table thead th {
+        color: #799ed3;
+    }
+
+    .btn i {
+        font-weight: bold; 
+        color: #46484b; 
+        transition: color 0.3s, background-color 0.3s; 
+        font-size: 1.5em;
+    }
+
+    .btn-delete i {
+        color: #f5a6a6;
+    }
+
+    .btn-view i {
+        color: #799ed3; 
+    }
+
+    .btn-add i {
+        color: #46484b; 
+    }
+
+    .btn {
+        background: none;
+        border: none;
+        padding: 5px; 
+        border-radius: 4px; /
+        transition: background-color 0.3s; 
+    }
+
+        .btn:hover {
+            background-color: #f0f0f0; 
+        }
+
+        .btn i:hover {
+            color: #000; 
+        }
+</style>
+
+<h1>Reports List</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Report Name</th>
+            <th>Connection</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var report in Model)
+        {
+            <tr>
+                <td>
+                    <span id="report-name-@report.Id">@report.ReportName</span>
+                    <input type="text" id="report-name-input-@report.Id" value="@report.ReportName" style="display:none;" />
+                </td>
+                <td>@report.ConnectionAlias</td>
+                <td>
+                    <!-- Edit Button -->
+                    <button id="edit-button-@report.Id" class="btn btn-edit" onclick="editReportName(@report.Id)"><i class="fa-solid fa-pen" style="color: #e2ea76;"></i></button>
+                    <!-- Confirm Button -->
+                    <button id="confirm-button-@report.Id" class="btn btn-confirm" onclick="confirmEditReportName(@report.Id)" style="display:none;"><i class="fas fa-check"style="color:seagreen"></i></button>
+
+                    <!-- Form for Deleting -->
+                    <form method="post" action="@Url.Action("DeleteReport", "UserDatabase")" style="display:inline;">
+                        <input type="hidden" name="id" value="@report.Id" />
+                        <button type="submit" class="btn btn-delete"><i class="fa-solid fa-trash-can"></i></button>
+                    </form>
+                    <!-- Link to View Report -->
+                    <a href="@Url.Action("ViewReport", new { id = report.Id })" class="btn btn-view"><i class="fa-regular fa-eye"></i></a>
+
+                    <!-- Form for Renaming -->
+                    <form id="rename-form-@report.Id" method="post" action="@Url.Action("EditReportName", "UserDatabase")" style="display:inline;">
+                        <input type="hidden" name="id" value="@report.Id" />
+                        <input type="hidden" id="newReportName-@report.Id" name="newName" value="@report.ReportName" />
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("CreateReport")" class="btn btn-add"><i class="fas fa-plus"></i> New Report</a>
+<script>
+    function editReportName(reportId) {
+        // Hide the edit button and show the confirm button
+        document.getElementById(`edit-button-${reportId}`).style.display = 'none';
+        document.getElementById(`confirm-button-${reportId}`).style.display = 'inline';
+
+        // Show the input field and hide the span
+        document.getElementById(`report-name-input-${reportId}`).style.display = 'inline';
+        document.getElementById(`report-name-${reportId}`).style.display = 'none';
+
+        // Set focus on the input field
+        document.getElementById(`report-name-input-${reportId}`).focus();
+    }
+
+    function confirmEditReportName(reportId) {
+        // Get the new report name
+        const newName = document.getElementById(`report-name-input-${reportId}`).value;
+
+        // Update the hidden input field with the new name
+        document.getElementById(`newReportName-${reportId}`).value = newName;
+
+        // Submit the form
+        document.getElementById(`rename-form-${reportId}`).submit();
+    }
+</script>
+

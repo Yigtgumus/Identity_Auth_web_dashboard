@@ -1,0 +1,111 @@
+﻿@model List<Identity_Auth.Models.UserDatabaseConnection>
+
+@{
+    Layout = "~/Views/Shared/_NewSidebarLayout.cshtml";
+    ViewData["Title"] = "Database Connections";
+}
+
+<style>
+    h2 {
+        color: #808183;
+        font-size: 1.9em;
+        font-weight: bold;
+        
+        margin-bottom: 50px;
+        text-align:center;
+    }
+
+    .alert-info { 
+        font-size: 1.1em; 
+    }
+
+    .table {
+        font-size: 1.1em;
+    }
+
+        .table thead tr {
+            color: #799ed3;
+            font-weight: bold;
+        }
+
+        .table td, .table th {
+            font-size: 1.1em;
+        }
+
+    .form-control {
+        font-size: 1.1em;
+    }
+
+    .btn {
+        font-size: 1.1em;
+    }
+</style>
+
+<h2>Database Connections</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Names</th>
+            <th>Server</th>
+            <th>Database</th>
+            <th>Id</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var connection in Model)
+        {
+            <tr>
+                <td>
+                    <span id="alias-display-@connection.Id">@connection.Alias</span>
+                    <input id="alias-input-@connection.Id" type="text" class="form-control" style="display:none;" value="@connection.Alias" />
+                </td>
+                <td>@connection.ServerName</td>
+                <td>@connection.DatabaseName</td>
+                <td>@connection.Id</td>
+                <td>
+                    <form asp-action="DeleteConnection" method="post" style="display:inline" onsubmit="return confirmDelete();">
+                        <input type="hidden" name="id" value="@connection.Id" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    <button type="button" class="btn" style="background-color: #FFD700; color: black; border-color: #FFD700;" onclick="editAlias(@connection.Id)">Rename</button>
+                    <form id="rename-form-@connection.Id" asp-action="RenameConnection" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@connection.Id" />
+                        <input type="hidden" name="newAlias" id="newAlias-@connection.Id" value="@connection.Alias" />
+                        <button type="submit" class="btn btn-success" style="display:none;">Save</button>
+                    </form>
+                    <form asp-action="TestConnection" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@connection.Id" />
+                        <button type="submit" class="btn btn-info">Test Connection</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("AddConnection")" class="btn btn-success">Add Connection</a>
+
+@section Scripts { 
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function confirmDelete() {
+            return confirm('When you delete this connection, reports and graphics that has been created on this connection automatically will be deleted. Are you sure ?');
+        }
+        function editAlias(id) {
+            document.getElementById('alias-display-' + id).style.display = 'none';
+            document.getElementById('alias-input-' + id).style.display = 'inline-block';
+            document.querySelector('#rename-form-' + id + ' button[type="submit"]').style.display = 'inline-block';
+
+            document.getElementById('alias-input-' + id).addEventListener('input', function () {
+                document.getElementById('newAlias-' + id).value = this.value;
+            });
+        }
+    </script> 
+}

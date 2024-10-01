@@ -1,0 +1,41 @@
+
+
+/* site.css dosyanýza ekleyin */
+
+.fade-in {
+    animation: fadeIn 0.5s;
+}
+
+.fade-out {
+    animation: fadeOut 0.5s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+
+/* Color palette 
+    #808183
+    #f9f9fa
+    #799ed3
+    #bcbdbf
+    #46484b
+*/
+

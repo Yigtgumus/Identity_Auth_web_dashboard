@@ -1,0 +1,615 @@
+﻿@model ViewReportViewModel
+
+@{
+    Layout = "~/Views/Shared/_NewSidebarLayout.cshtml";
+    ViewBag.Title = Model.ReportName;
+}
+<style>
+   
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        padding: 20px;
+        margin: 60px auto; 
+        width: 80%; 
+    }
+
+    h1 {
+        color: #808183; 
+        font-weight: bold; 
+    }
+
+    .table-chart-container {
+        display: flex; 
+        gap: 20px; 
+        margin-bottom: 40px; 
+    }
+
+    .table-container {
+        flex: 0 0 70%; 
+        max-height: 500px; 
+        overflow-x: auto; 
+        overflow-y: auto; 
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 20px; 
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 12px; 
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .table-container::-webkit-scrollbar {
+        width: 16px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 8px;
+    }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background-color: #555;
+        }
+
+    .chart-container {
+        width: 100%; 
+        max-width: 1000px; 
+        height: 500px; 
+        border: 1px solid #ddd;
+        position: relative;
+        margin: 20px auto; 
+    }
+
+    .chart-options {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px; 
+        flex-direction: column;
+    }
+
+        .chart-options label {
+            color: #799ed3; 
+            font-weight: bold; 
+        }
+
+    .statistics-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px; 
+        justify-content: center; 
+        max-height:500px;
+        overflow-y: auto;
+        overflow-x: auto;
+        width:900px;
+    }
+
+    .statistics-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+        .statistics-container::-webkit-scrollbar-thumb {
+            background-color: #0b367a;
+             border-radius: 8px;
+    }
+
+            .statistics-container::-webkit-scrollbar-thumb:hover {
+                background-color: #0b367a;
+        }
+
+    .circle-container {
+        flex: 1 1 calc(50% - 20px); 
+        max-width: 500px; 
+        box-sizing: border-box; 
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        margin-right:9px;
+        
+    }
+
+    svg {
+        max-width: 65%; 
+        max-height: 65%; 
+    }
+
+    .circle {
+        fill: none;
+        stroke-width: 15; 
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1s ease;
+    }
+
+    .circle-background {
+        stroke: #e0e0e0; 
+    }
+
+    .circle-progress {
+        stroke: var(--circle-color, #0b367a); 
+    }
+
+    
+    .save-options {
+        margin-top: 180px;
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+    }
+
+        .save-options label {
+            color: #799ed3; 
+            font-weight: bold; 
+        }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 100px;
+    }
+
+    .modal-content {
+        background: rgba(128, 128, 128, 0.6); 
+        backdrop-filter: blur(7.5px);
+        margin: 15% auto;
+        padding: 30px;
+        border: 1px solid #888;
+        border-radius:15px;
+        width: 45%;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+</style>
+
+<div class="container">
+    <h1>@Model.ReportName</h1>
+    <div class="connection-name">Connection Id :@Model.ConnectionId</div>
+
+   
+    <div>
+        <pre>@Model.Query</pre>
+    </div>
+
+    <div class="table-chart-container">
+        <div id="tableContainer" class="table-container">
+           
+        </div>
+        <div id="statisticsContainer" class="statistics-container">
+           
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="reportChart"></canvas>
+        <div class="chart-options">
+            <label for="chartType">View Type :</label>
+            <select id="chartType">
+                <option value="bar">Bar</option>
+                <option value="line">Line</option>
+                <option value="pie">Pie</option>
+                <option value="polarArea">Polar Area</option>
+                <option value="radar">Radar</option>
+            </select>
+            <label for="xAxis">Rows :</label>
+            <select id="xAxis"></select>
+           
+            
+            
+                <label>
+                <input type="checkbox" id="enableYAxisSelection">
+                enableYAxisSelection
+               </label>
+            
+            <div id="yAxisContainer" style="display: none; margin-bottom:15px;">
+               
+                <label for="yAxis">Y Axis :</label>
+                <select id="yAxis"></select>
+               
+            </div>
+            <label>
+                <input class="Priority_Checkbox" type="checkbox" name="priority" id="Critical" value="Critical">
+                Critical
+            </label>
+            
+
+        </div>
+    </div>
+
+   
+    <div class="save-options"style="margin-top:300px;">
+        <label for="dashboardSelector">Select Dashboard :</label>
+        <select id="dashboardSelector"></select>
+        <button id="saveToDashboard">Save to Dashboard</button>
+        <button id="addNewDashboard">Add New Dashboard</button>
+    </div>
+</div>
+
+
+<div id="addDashboardModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add New Dashboard</h2>
+        <input type="text" id="newDashboardName" placeholder="Enter Dashboard Name" />
+        <button id="saveNewDashboard">Save</button>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"> </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch(`/UserDatabase/ExecuteReportQuery?reportId=@Model.ReportId`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableContainer = document.getElementById("tableContainer");
+                    const chartTypeSelect = document.getElementById("chartType");
+                    const xAxisSelect = document.getElementById("xAxis");
+                    const yAxisCheckbox = document.getElementById("enableYAxisSelection");
+                    const yAxisSelect = document.getElementById("yAxis");
+                    const reportChart = document.getElementById("reportChart").getContext('2d');
+                    const statisticsContainer = document.getElementById("statisticsContainer");
+                    const yAxisContainer = document.getElementById("yAxisContainer");
+
+                    yAxisCheckbox.addEventListener("change", function () {
+                        yAxisContainer.style.display = yAxisCheckbox.checked ? "block" : "none";
+                    });
+
+                    let columns = data.columns;
+                    let rows = data.rows;
+
+                   
+                    let table = document.createElement('table');
+                    table.classList.add('table');
+                    let thead = document.createElement('thead');
+                    let tbody = document.createElement('tbody');
+                    let headRow = document.createElement('tr');
+
+                    columns.forEach(column => {
+                        let th = document.createElement('th');
+                        th.innerText = column;
+                        headRow.appendChild(th);
+                    });
+
+                    thead.appendChild(headRow);
+                    table.appendChild(thead);
+
+                    rows.forEach(row => {
+                        let tr = document.createElement('tr');
+                        row.forEach(cell => {
+                            let td = document.createElement('td');
+                            td.innerText = cell;
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+
+                    table.appendChild(tbody);
+                    tableContainer.innerHTML = ''; 
+                    tableContainer.appendChild(table);
+
+                    
+                    xAxisSelect.innerHTML = '';
+                    columns.forEach(column => {
+                        let option = document.createElement('option');
+                        option.value = column;
+                        option.innerText = column;
+                        xAxisSelect.appendChild(option);
+                    });
+
+                   
+                    function populateYAxisSelect() {
+                        yAxisSelect.innerHTML = '';
+                        columns.forEach(column => {
+                            if (column !== xAxisSelect.value) {
+                                let option = document.createElement('option');
+                                option.value = column;
+                                option.innerText = column;
+                                yAxisSelect.appendChild(option);
+                            }
+                        });
+                    }
+
+                    
+                    function generateColorArray(length) {
+                        const colors = [];
+                        for (let i = 0; i < length; i++) {
+                            colors.push(generateRandomColor());
+                        }
+                        return colors;
+                    }
+
+                    
+                    function renderChart() {
+                        if (window.chartInstance) {
+                            window.chartInstance.destroy(); 
+                        }
+
+                        const chartType = chartTypeSelect.value;
+                        const xAxisColumn = xAxisSelect.value;
+                        const yAxisSpecified = yAxisCheckbox.checked;
+                        const yAxisColumn = yAxisSelect.value;
+
+                       
+                        const labels = [];
+                        const datasets = {};
+
+                       
+                        rows.forEach(row => {
+                            const xValue = row[columns.indexOf(xAxisColumn)];
+                            labels.push(xValue);
+
+                            columns.forEach((col, index) => {
+                                if (col !== xAxisColumn && (!yAxisSpecified || (yAxisSpecified && col === yAxisColumn))) {
+                                    if (!datasets[col]) {
+                                        datasets[col] = [];
+                                    }
+                                    const value = parseFloat(row[index]) || 0;
+                                    datasets[col].push(value);
+                                }
+                            });
+                        });
+
+                        
+                        const formattedDatasets = Object.keys(datasets).map(key => {
+                            const data = labels.map((_, index) => datasets[key][index] || 0);
+                            return {
+                                label: key,
+                                data: data,
+                                backgroundColor: (chartType === 'pie' || chartType === 'polarArea') ? generateColorArray(labels.length) : generateRandomColor(),
+                                borderColor: (chartType === 'line' || chartType === 'bar') ? generateRandomColor() : undefined,
+                                borderWidth: (chartType === 'line' || chartType === 'bar') ? 1 : undefined
+                            };
+                        });
+
+                        const chartData = {
+                            labels: labels,
+                            datasets: formattedDatasets
+                        };
+
+                        window.chartInstance = new Chart(reportChart, {
+                            type: chartType,
+                            data: chartData,
+                            options: {
+                                responsive: true,
+                                scales: (chartType === 'line' || chartType === 'bar') ? {
+                                    x: {
+                                        type: 'category',
+                                        labels: labels,
+                                    },
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            callback: function (value) {
+                                                return value;
+                                            }
+                                        }
+                                    }
+                                } : undefined
+                            }
+                        });
+                    }
+
+                    function generateRandomColor() {
+                        const letters = '0123456789ABCDEF';
+                        let color = '#';
+                        for (let i = 0; i < 6; i++) {
+                            color += letters[Math.floor(Math.random() * 16)];
+                        }
+                        return color;
+                    }
+
+                
+                    function calculateStatistics() {
+                        statisticsContainer.innerHTML = ''; 
+                        columns.forEach((column, colIndex) => {
+                            const values = rows.map(row => row[colIndex]);
+                            const frequencyMap = values.reduce((acc, val) => {
+                                acc[val] = (acc[val] || 0) + 1;
+                                return acc;
+                            }, {});
+
+                            const maxValue = Math.max(...Object.values(frequencyMap));
+                            const mostFrequentValue = Object.keys(frequencyMap).find(key => frequencyMap[key] === maxValue);
+                            const percentage = (maxValue / values.length) * 100;
+
+                            if (maxValue === 1) return; 
+
+                            const color = generateRandomColor(); 
+                            const radius = 50; 
+                            const circumference = 2 * Math.PI * radius;
+                            const offset = circumference - (percentage / 100) * circumference;
+
+                            const circleContainer = document.createElement('div');
+                            circleContainer.classList.add('circle-container');
+                            circleContainer.innerHTML = `
+                                        <svg viewBox="0 0 160 160">
+                                            <circle class="circle circle-background" cx="80" cy="80" r="${radius}" />
+                                            <circle class="circle circle-progress" cx="80" cy="80" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" stroke="${color}" />
+                                        </svg>
+                                        <p>${mostFrequentValue}</p>
+                                        <p>${percentage.toFixed(2)}%</p>
+                                    `;
+                            statisticsContainer.appendChild(circleContainer);
+
+                            // Trigger the transition
+                            setTimeout(() => {
+                                circleContainer.querySelector('.circle-progress').style.strokeDashoffset = offset;
+                            }, 0);
+                        });
+                    }
+
+                  
+                    renderChart();
+
+                   
+                    calculateStatistics();
+
+                  
+                    chartTypeSelect.addEventListener('change', () => {
+                        renderChart();
+                    });
+                    xAxisSelect.addEventListener('change', () => {
+                        renderChart();
+                        populateYAxisSelect();
+                    });
+                    yAxisCheckbox.addEventListener('change', () => {
+                        if (yAxisCheckbox.checked) {
+                            yAxisSelect.style.display = "block";
+                            populateYAxisSelect();
+                        } else {
+                            yAxisSelect.style.display = "none";
+                        }
+                        renderChart();
+                    });
+                    yAxisSelect.addEventListener('change', () => {
+                        renderChart();
+                    });
+                });
+        });
+        $(document).ready(function () {
+           
+            loadDashboards();
+
+            // Save to Dashboard butonu click eventi
+            $('#saveToDashboard').click(function () {
+                var selectedDashboardId = $('#dashboardSelector').val();
+                var chartType = $('#chartType').val();
+                var xAxis = $('#xAxis').val();
+                var yAxis = $('#enableYAxisSelection').is(':checked') ? $('#yAxis').val() : 'Multiple'; // YAxis değerini al
+                var query = '@Model.Query';
+                var priorty = $('#Critical').is(':checked') ? 'Critical' : 'Normal'; // checkbox seçiliyse "ciritical" değilse "Normal" yap.
+                var connectionId = @Model.ConnectionId; // Bunu ViewModel'a eklemelisiniz
+                var graphic = {
+                    Priorty:priorty,
+                    DashboardId: selectedDashboardId,
+                    Type: chartType,
+                    Row: xAxis,
+                    YAxis: yAxis, // Yeni YAxis eklenmesi
+                    Query: query,
+                    ConnectionId: connectionId
+                };
+                saveGraphic(graphic);
+            });
+           
+            $('#addNewDashboard').click(function () {
+                $('#addDashboardModal').show();
+            });
+
+            
+            $('.close').click(function () {
+                $('#addDashboardModal').hide();
+            });
+
+          
+            $('#saveNewDashboard').click(function () {
+                var newDashboardName = $('#newDashboardName').val();
+                addNewDashboard(newDashboardName);
+            });
+        });
+
+
+            function loadDashboards() {
+                $.ajax({
+                    url: '@Url.Action("GetDashboards", "UserDatabase")',
+                    type: 'GET',
+                    success: function (data) {
+                        var dashboardSelector = $('#dashboardSelector');
+                        dashboardSelector.empty();
+                        $.each(data, function (index, dashboard) {
+                            dashboardSelector.append($('<option>', {
+                                value: dashboard.id,
+                                text: dashboard.name
+                            }));
+                        });
+                    }
+                });
+            }
+
+            function saveGraphic(graphic) {
+                $.ajax({
+                    url: '@Url.Action("SaveGraphic", "UserDatabase")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(graphic),
+                    success: function (data) {
+                        if (data.success) {
+                            alert('Graphic saved to dashboard successfully.');
+                        } else {
+                            alert('Graphic saved to dashboard succesfully.');
+                        }
+                    }
+                });
+            }
+        function addNewDashboard(name) {
+            $.ajax({
+                url: '@Url.Action("AddDashboard", "UserDatabase")',
+                type: 'POST',
+                data: JSON.stringify({ Name: name }),
+                contentType: 'application/json',
+                success: function (response) {
+                    alert(response.message);
+                    $('#addDashboardModal').hide();
+                    loadDashboards();
+                }
+            });
+        }
+        fetch(`/UserDatabase/ExecuteReportQuery?reportId=@Model.ReportId`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Data fetched successfully:", data);
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+    </script>
+}
+

@@ -1,0 +1,89 @@
+﻿@using Identity_Auth.ViewModels
+@model LoginVM
+@{
+    ViewData["Title"] = "Login";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+<style>
+    body {
+        background-image: url('/images/business.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        height: 100vh;
+        margin: 0;
+        color: #fff;
+    }
+
+    .form-container {
+        max-width: 600px;
+        padding: 40px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        border: none;
+        margin: auto;
+        background: rgba(0, 0, 0, 0.3); 
+        backdrop-filter: blur(7.5px); 
+        border-radius: 15px; 
+        color: #fff; 
+        margin-right:35%;
+        margin-bottom:20%;
+    }
+
+        .form-container h2 {
+            font-size: 2.5rem;
+        }
+
+    .form-control {
+        font-size: 1rem;
+        background-color: rgba(255, 255, 255, 0.8); 
+    }
+
+    .form-control-label {
+        font-size: 1.25rem;
+    }
+
+    .btn-lg {
+        font-size: 1.25rem;
+        padding: 0.75rem 1.5rem;
+    }
+</style>
+
+<div class="row d-flex align-items-center justify-content-center" >
+    <div class="col-md-6 card p-4 form-container">
+        
+        <h2 class="text-center text-info">Login</h2>
+        <form asp-action="Login" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Username" class="form-control-label"></label>
+                <input asp-for="Username" class="form-control" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="mb-3 form-check">
+                <label class="form-check-label">
+                    <input asp-for="RememberMe" class="form-check-input" /> @Html.DisplayNameFor(a => a.RememberMe)
+                </label>
+            </div>
+            <div class="row">
+                <div class="col-8">
+                    <a asp-action="Register" class="text-decoration-none float-start mt-2" asp-route-returnurl="@ViewData["ReturnUrl"]">Don't have an account?</a>
+                </div>
+                <div class="col-4">
+                    <input type="submit" value="Login" class="btn btn-primary btn-lg float-end" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

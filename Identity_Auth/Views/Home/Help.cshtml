@@ -1,0 +1,42 @@
+﻿@{
+    Layout = "~/Views/Shared/_NewSidebarLayout.cshtml";
+}
+<style>
+    .homepage-content {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #333;
+        padding: 20px;
+        background-color: white;
+        border-radius: 10px;
+    }
+
+        .homepage-content h6 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+
+        .homepage-content p {
+            font-size: 18px;
+            color: #555;
+        }
+</style>
+<div class="homepage-content">
+    <h6>Welcome to the DatFlow Application</h6>
+    <p>
+        This application provides you with a comprehensive web dashboard where you can register and log in using the Identity Framework. It consists of three main sections: Database, Reports, and Dashboard.
+    </p>
+    <i class="fas fa-database fa-5x" style="display: block; margin: 5px auto; color:#4F657C"></i>
+    <p>
+        In the Database section, you can define multiple database connections by entering the necessary details (Servername, DBname). This allows you to manage various connections simultaneously.
+    </p>
+    <i class="fas fa-chart-bar fa-5x" style="display: block; margin: 5px auto; color:#4F657C"></i>
+    <p>
+        In the Reports section, you can display the list of the reports you created or create a new one. In the Creation you can navigate through tables via executing SQL querries, Create and optimize charts, See the duplicated value statistics and save it to the Reports List. Also you can save the optimized chart to your dashboard for quick access. 
+    </p>
+    <i class="fas fa-layer-group fa-5x" style="display: block; margin: 5px auto; color:#4F657C"></i>
+    <p>
+        In the Dashboard section, you can access the live charts that you saved in the reports section. Here, you can also delete charts for your optimization. This page Refresh itself in every 2 minutes.
+    </p>
+</div>
