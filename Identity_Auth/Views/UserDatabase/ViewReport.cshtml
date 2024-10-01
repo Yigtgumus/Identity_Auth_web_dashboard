@@ -514,15 +514,15 @@
            
             loadDashboards();
 
-            // Save to Dashboard butonu click eventi
+            
             $('#saveToDashboard').click(function () {
                 var selectedDashboardId = $('#dashboardSelector').val();
                 var chartType = $('#chartType').val();
                 var xAxis = $('#xAxis').val();
-                var yAxis = $('#enableYAxisSelection').is(':checked') ? $('#yAxis').val() : 'Multiple'; // YAxis değerini al
+                var yAxis = $('#enableYAxisSelection').is(':checked') ? $('#yAxis').val() : 'Multiple'; 
                 var query = '@Model.Query';
-                var priorty = $('#Critical').is(':checked') ? 'Critical' : 'Normal'; // checkbox seçiliyse "ciritical" değilse "Normal" yap.
-                var connectionId = @Model.ConnectionId; // Bunu ViewModel'a eklemelisiniz
+                var priorty = $('#Critical').is(':checked') ? 'Critical' : 'Normal'; 
+                var connectionId = @Model.ConnectionId; 
                 var graphic = {
                     Priorty:priorty,
                     DashboardId: selectedDashboardId,
