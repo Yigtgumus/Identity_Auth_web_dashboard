@@ -578,7 +578,7 @@ public class UserDatabaseController : Controller
         _context.Graphics.Remove(graphic);
         _context.SaveChanges();
 
-        return RedirectToAction("Details", new { id = graphic.DashboardId }); // Dashboard ID'yi burada kullanarak silme sonrası aynı sayfaya yönlendiriyoruz
+        return RedirectToAction("Details", new { id = graphic.DashboardId }); 
     }
     [HttpGet]
     private async Task<string> GetConnectionAliasAsync(int connectionId)
